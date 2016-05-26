@@ -1,16 +1,12 @@
-import fnmatch
 import os
-import math
+import pickle
+import time
+
 import cv2
 import numpy as np
-import matplotlib as mpl
-import json
-import pickle
-from classifier.tool import im
-from sklearn.svm import SVC
-from sklearn import metrics
 from sklearn.cluster import MiniBatchKMeans
-import time
+from sklearn.svm import SVC
+
 
 def create(img_and_cls, dvector_len):
     start = time.time()
@@ -41,7 +37,8 @@ def create(img_and_cls, dvector_len):
 class SVM:
 
     def __init__(self, svm_name=None):
-        with open(os.path.join(os.path.dirname(__file__), svm_name + '.pkl'), 'rb') as f:
+        decode_dir = 'learned/'
+        with open(os.path.join(os.path.dirname(__file__), decode_dir + svm_name + '.pkl'), 'rb') as f:
             self.svm, self.visual_words = pickle.load(f)
         self.dvector_len = len(self.visual_words)
 
