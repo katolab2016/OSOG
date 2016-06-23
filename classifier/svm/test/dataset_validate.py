@@ -6,28 +6,25 @@ import numpy as np
 from sklearn.metrics import accuracy_score
 
 from classifier.svm import sift_bof as ss
-from classifier.svm import im
+from classifier.tool import file
 
-path_pos = '../../datasets/Gtra/'
-path_neg = '../../datasets/Gneg/'
-div_ratio = 0.5
+
 dvector_len = 1000
-extensions = ['jpg', 'png']
 sift = cv2.xfeatures2d.SIFT_create()
 
-images_pos = im.imsread_ext(dirpath=path_pos, flags=0, exts=extensions)
-print("positive class image num is "+str(len(images_pos)))
-images_neg = im.imsread_ext(dirpath=path_neg, flags=0, exts=extensions)
-print("negative class image num is "+str(len(images_neg)))
-
-images = images_pos + images_neg
-classes = np.zeros(len(images_pos),dtype=np.int).tolist() + np.ones(len(images_neg),dtype=np.int).tolist()
-
-img_and_cls = list(zip(images, classes))
-random.shuffle(img_and_cls)
-
-train = img_and_cls[:math.floor(div_ratio*len(images))]
-test = img_and_cls[math.floor(div_ratio*len(images)):]
+#データセット読み込み
+exts = ['jpg', 'png']
+dirs = [
+    '../../datasets/G/',
+    '../../datasets/beetle/',
+    '../../datasets/cricket/',
+    '../../datasets/stagbeetle/'
+]
+div_ratio = 0.9
+icz = file.read_dataset(dirs, exts=exts, size=(96,96))
+random.shuffle(icz)
+train = icz[:math.floor(div_ratio * len(icz))]
+test = icz[math.floor(div_ratio * len(icz)):]
 
 svm, visual_words = ss.create(train, dvector_len)
 
