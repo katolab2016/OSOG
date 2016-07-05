@@ -2,7 +2,7 @@ from idlelib.run import handle_tk_events
 
 import numpy as np
 import cv2
-import color
+import osog.detector.color
 from matplotlib import pyplot as plt
 
 def flame_sub(im1, im2, im3, th, blur):

@@ -1,8 +1,8 @@
 import pickle
 import numpy as np
 import os
-from classifier.svm import sift_bof
-from classifier.tool import file
+from osog.classifier.svm import sift_bof
+from osog.classifier.tool import file
 
 
 def generate(svm_name = 'unnamed', dirs = ['./']):
