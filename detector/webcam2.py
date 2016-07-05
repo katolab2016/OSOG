@@ -41,7 +41,6 @@ if __name__ == '__main__':
         im_fs = flame_sub(im1, im2, im3, 5, 7)
         im4 = cv2.cvtColor(cam.read()[1], cv2.COLOR_BGR2BGRA)
 
-
         ret,thresh = cv2.threshold(im_fs,127,255,0)
         cnt,im , _ = cv2.findContours(thresh, 1, cv2.CHAIN_APPROX_SIMPLE)
         x,y,w,h = cv2.boundingRect(cnt)

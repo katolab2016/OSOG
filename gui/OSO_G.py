@@ -9,25 +9,24 @@
 #反映ボタンを押したときにその設定を反映
 # -*- coding:utf-8 -*-
 
-from PyQt5.QtWidgets import (QApplication, QWidget, QDialog,
-                             QGridLayout, QVBoxLayout, QHBoxLayout, QRadioButton, QButtonGroup,
-                             QLabel, QPushButton)
+from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
-from save_data import save #設定の保存(get_data.pyの出力)
-from mosaic import mosaic #設定を受け取って結果の画像を出力
-from not_found import no_G_show #G未検出時の出力
+from osog.gui.save_data import save #設定の保存(get_data.pyの出力)
+from osog.gui.mosaic import mosaic #設定を受け取って結果の画像を出力
+from osog.gui.not_found import no_G_show #G未検出時の出力
+from osog.detector.capture import GDetector
 global flag_graph #結果の画像の設定 1:無修正 2:モザイク 3:完全規制ステッカ
 global flag_sound #警告音の設定 4:警告音あり 5:無音
 global result #結果のフラグ　0:G検出、1:未検出
-#from data import get_data
-from set_data import set_data #前回設定の読み込み
-from test_mp3 import alarm, select #alarm:警告音　select:設定反映時の音出力
+# from data import get_data
+from osog.gui.set_data import set_data #前回設定の読み込み
+from osog.gui.test_mp3 import alarm, select #alarm:警告音　select:設定反映時の音出力
 import sys
-dbg = 1#1:debugモード, 0:nomal
+dbg = 1  # 1:debugモード, 0:nomal
 
 
 class Setting(QWidget):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super(Setting, self).__init__(parent)
         self.lineLayout = QGridLayout()
         self.myVLayout = QVBoxLayout()
@@ -95,7 +94,6 @@ class Setting(QWidget):
 class MainMenu(QWidget):
     def __init__(self, sysarg, parent=None):
         app = QApplication(sysarg)
-
         super(MainMenu, self).__init__(parent)
         HLayout = QHBoxLayout()
         self.VLayout = QVBoxLayout()
@@ -107,9 +105,19 @@ class MainMenu(QWidget):
         self.settingBtn.clicked.connect(self.settingmenu)
         self.resetBtn = QPushButton("&結果をリセット")
         self.resetBtn.clicked.connect(self.reset)
+
+        #検出器まわり
+        self.detector = GDetector()
+        timer = QtCore.QTimer(self)
+        timer.timeout.connect(self.update_predict)
+        timer.start(1)
+        self.text = QLineEdit()
+        self.text.setReadOnly(True)
+
         #レイアウト
         resultVLayout.addWidget(self.resultBtn)
         resultVLayout.addWidget(self.resetBtn)
+        resultVLayout.addWidget(self.text)
 
         HLayout.addLayout(resultVLayout)
         HLayout.addWidget(self.settingBtn)
@@ -143,6 +151,12 @@ class MainMenu(QWidget):
     def reset(self):
         global result
         result = 1
+
+    def update_predict(self):
+        global result
+        if self.detector.exists()[1]:
+            result = 0
+        self.text.setText(str(result))
 
 #設定画面を出力するための土台を作るクラス
 class SetWindow(QDialog):
