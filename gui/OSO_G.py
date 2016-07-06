@@ -10,7 +10,7 @@
 # -*- coding:utf-8 -*-
 
 from PyQt5.QtWidgets import *
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtGui
 from osog.gui.save_data import save #設定の保存(get_data.pyの出力)
 from osog.gui.mosaic import mosaic #設定を受け取って結果の画像を出力
 from osog.gui.not_found import no_G_show #G未検出時の出力
@@ -98,6 +98,13 @@ class MainMenu(QWidget):
         HLayout = QHBoxLayout()
         self.VLayout = QVBoxLayout()
         resultVLayout = QVBoxLayout()
+        # 画像表示に関する部分
+        self.imageLabel = QLabel()
+        image = QtGui.QImage()
+        image.load("Screen Shot 2016-05-10 at 2.28.02 PM.png")
+        pixmap = QtGui.QPixmap()
+        pixmap.convertFromImage(image)
+        self.imageLabel.setPixmap(pixmap)
         #ボタンと関数の関連付け
         self.resultBtn = QPushButton("&結果を確認")
         self.resultBtn.clicked.connect(self.result)
@@ -121,6 +128,8 @@ class MainMenu(QWidget):
 
         HLayout.addLayout(resultVLayout)
         HLayout.addWidget(self.settingBtn)
+        # 画像をレイアウトに追加
+        self.VLayout.addWidget(self.imageLabel)
 
         self.VLayout.addLayout(HLayout)
 
