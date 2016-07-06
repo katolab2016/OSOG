@@ -24,7 +24,6 @@ from osog.gui.test_mp3 import alarm, select #alarm:警告音　select:設定反�
 import sys
 dbg = 1  # 1:debugモード, 0:nomal
 
-
 class Setting(QWidget):
     def __init__(self, parent=None):
         super(Setting, self).__init__(parent)
@@ -117,14 +116,16 @@ class MainMenu(QWidget):
         self.detector = GDetector()
         timer = QtCore.QTimer(self)
         timer.timeout.connect(self.update_predict)
-        timer.start(1)
-        self.text = QLineEdit()
-        self.text.setReadOnly(True)
+        timer.start(100)
+        if dbg == 1:
+            self.text = QLineEdit()
+            self.text.setReadOnly(True)
+            resultVLayout.addWidget(self.text)
 
         #レイアウト
         resultVLayout.addWidget(self.resultBtn)
         resultVLayout.addWidget(self.resetBtn)
-        resultVLayout.addWidget(self.text)
+
 
         HLayout.addLayout(resultVLayout)
         HLayout.addWidget(self.settingBtn)
@@ -165,7 +166,13 @@ class MainMenu(QWidget):
         global result
         if self.detector.exists()[1]:
             result = 0
-        self.text.setText(str(result))
+        if dbg == 1:
+            message = 'DebugMsg: '
+            if result == 0:
+                message += '発見済み'
+            else:
+                message += '未発見'
+            self.text.setText(message)
 
 #設定画面を出力するための土台を作るクラス
 class SetWindow(QDialog):

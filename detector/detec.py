@@ -2,7 +2,7 @@ from idlelib.run import handle_tk_events
 
 import numpy as np
 import cv2
-import osog.detector.color
+from osog.detector import color
 from matplotlib import pyplot as plt
 
 def flame_sub(im1, im2, im3, th, blur):
@@ -41,10 +41,10 @@ if __name__ == '__main__':
         #フレーム間差分計算
         im_fs = flame_sub(im1, im2, im3, 5, 7)
         brown = color.hsv(cam)
-        im4 = cv2.cvtColor(cam.read()[1], cv2.COLOR_BGR2BGRA)
+        #im4 = cv2.cvtColor(cam.read()[1], cv2.COLOR_BGR2BGRA)
+        im4 = cam.read()[1]
 
         area = cv2.bitwise_and(im_fs , brown)
-
         ret,thresh = cv2.threshold(area,127,255,0)
         cnt,im , _ = cv2.findContours(thresh, 1, cv2.CHAIN_APPROX_SIMPLE)
         x,y,w,h = cv2.boundingRect(cnt)

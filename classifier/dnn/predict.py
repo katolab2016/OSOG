@@ -2,7 +2,7 @@ import sys
 import numpy as np
 import tensorflow as tf
 import cv2
-from classifier.tool import file
+from osog.classifier.tool import file
 
 NUM_CLASSES = 4
 IMAGE_SIZE = 32
@@ -10,7 +10,6 @@ IMAGE_PIXELS = IMAGE_SIZE*IMAGE_SIZE*3
 
 def inference(images_placeholder, keep_prob):
     """ モデルを作成する関数
-
     引数:
       images_placeholder: inputs()で作成した画像のplaceholder
       keep_prob: dropout率のplace_holder
@@ -66,6 +65,20 @@ def inference(images_placeholder, keep_prob):
         y_conv=tf.nn.softmax(tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
 
     return y_conv
+
+class DNN:
+    def __init__(self, dnn_name):
+        self.images_placeholder = tf.placeholder("float", shape=(None, IMAGE_PIXELS))
+        self.labels_placeholder = tf.placeholder("float", shape=(None, NUM_CLASSES))
+        self.keep_prob = tf.placeholder("float")
+        self.logits = inference(self.images_placeholder, self.keep_prob)
+        self.sess = tf.InteractiveSession()
+        self.saver = tf.train.Saver()
+        self.sess.run(tf.initialize_all_variables)
+        self.saver.restore(self.sess, dnn_name + '.ckpt')
+
+    #def predict(self, image):
+
 
 if __name__ == '__main__':
     test_image = []

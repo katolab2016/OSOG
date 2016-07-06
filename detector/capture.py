@@ -1,10 +1,13 @@
 from idlelib.run import handle_tk_events
-
 import numpy as np
 import cv2
 import random
+import os
+from osog.classifier.svm.sift_bof import SVM
+from osog.detector.color_filter import hsv
 from matplotlib import pyplot as plt
 
+DEBUG = True
 
 def flame_sub(im1, im2, im3, th, blur):
 
@@ -33,6 +36,8 @@ class GDetector:
         self.cam = cv2.VideoCapture(0)
         self.im1 = cv2.cvtColor(self.cam.read()[1], cv2.COLOR_BGR2GRAY)
         self.im2 = cv2.cvtColor(self.cam.read()[1], cv2.COLOR_RGB2GRAY)
+        self.svm = SVM(svm_name='4classx96')
+        self.predict = np.ones(5).tolist()
 
     #Gがいるか?
     def exists(self):
@@ -41,7 +46,10 @@ class GDetector:
         self.im3 = cv2.cvtColor(im4, cv2.COLOR_RGB2GRAY)
         im_fs = flame_sub(self.im1, self.im2, self.im3, 5, 7)
 
-        ret,thresh = cv2.threshold(im_fs,127,255,0)
+        brown = hsv(im4)
+        area = cv2.bitwise_and(im_fs, brown)
+        ret, thresh = cv2.threshold(area, 127, 255, 0)
+
         cnt,im , _ = cv2.findContours(thresh, 1, cv2.CHAIN_APPROX_SIMPLE)
         x,y,w,h = cv2.boundingRect(cnt)
         new_w = h if h > w else w
@@ -49,24 +57,36 @@ class GDetector:
         # new_x = x - (int(new_w / 2 - w / 2))
         new_x = x - (new_w - w) // 2 if x > (new_w - w) // 2 else x
         new_y = y - (new_h - h) // 2 if y > (new_h - h) // 2 else y
-        #cv2.rectangle(im4, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        #cv2.rectangle(im4, (new_x, new_y), (new_x + new_w, new_y + new_h), (0, 255, 0), 2)
+        cv2.rectangle(im4, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        # cv2.rectangle(im4, (new_x, new_y), (new_x + new_w, new_y + new_h), (0, 255, 0), 2)
         dst = im4[new_y:new_y + new_h, new_x:new_x + new_w]
         #cv2.imwrite('dst.jpg', dst)
 
         #識別機にわたすとこやでー
         #仮の処理
-        predicted_class = random.randint(0,3)
+        if len(dst) > 0:
+            predicted_class = self.svm.predict(cv2.cvtColor(dst, cv2.COLOR_RGB2GRAY))
+        else:
+            predicted_class = 4
         #識別機からもらうでー
 
-        cv2.imshow("Input", im4)
-        cv2.imshow("Motion Mask", im_fs)
+        if DEBUG:
+            cv2.imshow("Input", im4)
+            cv2.imshow("Motion Mask", area)
 
         self.im1 = self.im2
         self.im2 = self.im3
+        print(predicted_class)
 
         if predicted_class == 0:
+            #exist = True
+            self.predict = self.predict[1:] + [1]
+        else:
+            #exist = False
+            self.predict = self.predict[1:] + [0]
+        if sum(self.predict) >= 4:
             exist = True
+            print('>> G <<')
         else:
             exist = False
 
