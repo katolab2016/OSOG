@@ -1,10 +1,11 @@
 # -*- coding: UTF-8 -*-
 #設定を受け取ってGがいた画像の表示
 import cv2
+#画像を読み込むのはデフォルトでサンプル画像
 
-def mosaic(flag_graph = 2):
-    #画像を読み込む(サンプルの設定になってます)
-    img_src = cv2.imread("IMG_20160522_194947.JPG", 1)
+def mosaic(flag_graph = 2, img_src = cv2.imread("IMG_20160522_194947.JPG", 1)):
+
+
 
     # 元の画像のサイズを取得
     size = img_src.shape[:2][::-1]
