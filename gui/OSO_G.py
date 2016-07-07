@@ -18,11 +18,13 @@ from osog.detector.capture import GDetector
 global flag_graph #結果の画像の設定 1:無修正 2:モザイク 3:完全規制ステッカ
 global flag_sound #警告音の設定 4:警告音あり 5:無音
 global result #結果のフラグ　0:G検出、1:未検出
+global wanted_pic   #結果の画像
 # from data import get_data
 from osog.gui.set_data import set_data #前回設定の読み込み
 from osog.gui.test_mp3 import alarm, select #alarm:警告音　select:設定反映時の音出力
 import sys
 dbg = 1  # 1:debugモード, 0:nomal
+
 
 class Setting(QWidget):
     def __init__(self, parent=None):
@@ -116,16 +118,14 @@ class MainMenu(QWidget):
         self.detector = GDetector()
         timer = QtCore.QTimer(self)
         timer.timeout.connect(self.update_predict)
-        timer.start(100)
-        if dbg == 1:
-            self.text = QLineEdit()
-            self.text.setReadOnly(True)
-            resultVLayout.addWidget(self.text)
+        timer.start(1)
+        self.text = QLineEdit()
+        self.text.setReadOnly(True)
 
         #レイアウト
         resultVLayout.addWidget(self.resultBtn)
         resultVLayout.addWidget(self.resetBtn)
-
+        resultVLayout.addWidget(self.text)
 
         HLayout.addLayout(resultVLayout)
         HLayout.addWidget(self.settingBtn)
@@ -152,8 +152,9 @@ class MainMenu(QWidget):
     def result(self):
         global flag_graph
         global result
+        global wanted_pic
         if result == 0: #Gを検出した時
-            mosaic(flag_graph)  #設定のフラグを渡して画像表示
+            mosaic(flag_graph, wanted_pic)  #設定のフラグを渡して画像表示
         else :  #Gを検出できなかった時
             no_G_show() #「検出できなかった」画像を表示
 
@@ -164,15 +165,15 @@ class MainMenu(QWidget):
 
     def update_predict(self):
         global result
-        if self.detector.exists()[1]:
+        global wanted_pic
+        global flag_sound
+        pic = self.detector.exists()
+        if pic[1]:
             result = 0
-        if dbg == 1:
-            message = 'DebugMsg: '
-            if result == 0:
-                message += '発見済み'
-            else:
-                message += '未発見'
-            self.text.setText(message)
+            wanted_pic = pic[0]
+            if flag_sound == 4: #設定で警告音を鳴らす
+                alarm()
+        self.text.setText(str(result))
 
 #設定画面を出力するための土台を作るクラス
 class SetWindow(QDialog):
