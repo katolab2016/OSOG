@@ -19,6 +19,7 @@ def create(img_and_cls, dvector_len):
     # すべての画像の特徴量を取り出す
     for img in images:
         local_features.append(sift.detectAndCompute(img, None)[1])
+
     eft = np.concatenate(list(filter(lambda f: f is not None, local_features)))
     visual_words = MiniBatchKMeans(n_clusters=dvector_len).fit(eft).cluster_centers_
 
@@ -38,14 +39,15 @@ class SVM:
 
     def __init__(self, svm_name=None):
         decode_dir = 'learned/'
+        self.sift = cv2.xfeatures2d.SIFT_create()
         with open(os.path.join(os.path.dirname(__file__), decode_dir + svm_name + '.pkl'), 'rb') as f:
             self.svm, self.visual_words = pickle.load(f)
         self.dvector_len = len(self.visual_words)
 
-    def predict(self, gray_image=None):
+    def predict(self, image=None):
 
-        sift = cv2.xfeatures2d.SIFT_create()
-        feat = sift.detectAndCompute(gray_image, None)[1]
+        gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        feat = self.sift.detectAndCompute(gray_image, None)[1]
         dvector = np.zeros(self.dvector_len)
         if feat is not None:
             for f in feat:

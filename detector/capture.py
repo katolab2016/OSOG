@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 import random
 import os
-from osog.classifier.svm.sift_bof import SVM
+from osog.classifier.universal import Estimator
 from osog.detector.color_filter import hsv
 from matplotlib import pyplot as plt
 
@@ -36,8 +36,9 @@ class GDetector:
         self.cam = cv2.VideoCapture(0)
         self.im1 = cv2.cvtColor(self.cam.read()[1], cv2.COLOR_BGR2GRAY)
         self.im2 = cv2.cvtColor(self.cam.read()[1], cv2.COLOR_RGB2GRAY)
-        self.svm = SVM(svm_name='4classx96')
-        self.predict = np.ones(5).tolist()
+        # self.estimator = Estimator(estimator_type='DNN', model_name='model6')
+        self.estimator = Estimator(estimator_type='SVM', model_name='4classx96')
+        self.predict = np.zeros(5).tolist()
 
     #Gがいるか?
     def exists(self):
@@ -65,7 +66,7 @@ class GDetector:
         #識別機にわたすとこやでー
         #仮の処理
         if len(dst) > 0:
-            predicted_class = self.svm.predict(cv2.cvtColor(dst, cv2.COLOR_RGB2GRAY))
+            predicted_class = self.estimator.predict(dst)
         else:
             predicted_class = 4
         #識別機からもらうでー

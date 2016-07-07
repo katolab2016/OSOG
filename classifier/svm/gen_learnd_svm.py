@@ -12,7 +12,7 @@ def generate(svm_name = 'unnamed', dirs = ['./']):
     dvector_len = 1000
 
     print('Loading datasets ...')
-    icz = file.read_dataset(dirs, exts=extensions, size=(96, 96))
+    icz = file.read_dataset(dirs, exts=extensions, size=(32, 32))
     print('Datasets Loaded.')
 
     print('Learning and Saving ...')

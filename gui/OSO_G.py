@@ -9,6 +9,7 @@
 #反映ボタンを押したときにその設定を反映
 # -*- coding:utf-8 -*-
 
+import cv2
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui
 from osog.gui.save_data import save #設定の保存(get_data.pyの出力)
