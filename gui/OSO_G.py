@@ -69,8 +69,6 @@ class Setting(QWidget):
         self.myVLayout.addLayout(self.lineLayout)
         self.myVLayout.addLayout(buttonLayout)
         self.setLayout(self.myVLayout)
-        #設定できないウィンドウタイトル
-        self.setWindowTitle("設定")
 
     def reflect(self):
         global flag_graph
@@ -92,6 +90,12 @@ class Setting(QWidget):
             select()
         #設定を関数を定義したファイルとして保存
         save(flag_graph, flag_sound)
+
+    def retranslateUi(self, NewWindow): #ウィンドウタイトルの変更を行う
+        NewWindow.setObjectName("NewWindow")
+        _translate = QtCore.QCoreApplication.translate
+        NewWindow.setWindowTitle(_translate("Newwindow", "設定"))
+        QtCore.QMetaObject.connectSlotsByName(NewWindow)
 
 class MainMenu(QWidget):
     def __init__(self, sysarg, parent=None):
@@ -186,10 +190,8 @@ class SetWindow(QDialog):
         dialog.setObjectName("Dialog")
         #ウィンドウの大きさ指定
         dialog.resize(350, 150)
-        #上手くいかない設定のウィンドウタイトル
-        _translate = QtCore.QCoreApplication.translate
-        dialog.setWindowTitle(_translate("Dialog", "設定"))
-        #QtCore.QMetaObject.connectSlotsByName(dialog)
+        #ウィンドウタイトルを設定
+        dialog.retranslateUi(self)
         #self.show()
         #self.exec_()
 
