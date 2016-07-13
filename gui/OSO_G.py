@@ -18,6 +18,7 @@ from osog.gui.not_found import no_G_show #G未検出時の出力
 from osog.detector.capture import GDetector
 global flag_graph #結果の画像の設定 1:無修正 2:モザイク 3:完全規制ステッカ
 global flag_sound #警告音の設定 4:警告音あり 5:無音
+global frag_alarm #警告音の種類のフラグ6-10
 global result #結果のフラグ　0:G検出、1:未検出
 global wanted_pic   #結果の画像
 # from data import get_data
@@ -36,6 +37,9 @@ class Setting(QWidget):
         #反映ボタン
         self.reflectButton = QPushButton("&設定を反映")
         self.reflectButton.clicked.connect(self.reflect)
+        # 試聴ボタン
+        self.testButton = QPushButton("&試聴する")
+        self.testButton.clicked.connect(self.test_sound)
         buttonLayout = QVBoxLayout()
         buttonLayout.addWidget(self.reflectButton)
         #項目のテキスト
@@ -56,6 +60,23 @@ class Setting(QWidget):
         # ラジオボタンE 無音
         self.radio_e = QRadioButton('無音')
         self.lineLayout.addWidget(self.radio_e, 1, 2)
+        # ラジオボタンF けたたましいサイレン
+        self.radio_f = QRadioButton('サイレン')
+        self.lineLayout.addWidget(self.radio_f, 2, 1)
+        # ラジオボタンG デデーン
+        self.radio_g = QRadioButton('アウト')
+        self.lineLayout.addWidget(self.radio_g, 2, 2)
+        # ラジオボタンH MGS「！」
+        self.radio_h = QRadioButton('！')
+        self.lineLayout.addWidget(self.radio_h, 2, 3)
+        # ラジオボタンI ニュータイプ
+        self.radio_i = QRadioButton('「見える......!」')
+        self.lineLayout.addWidget(self.radio_i, 2, 4)
+        # ラジオボタンJ ねるねる
+        self.radio_j = QRadioButton('ﾃｰﾚｯﾃﾚｰ')
+        self.lineLayout.addWidget(self.radio_j, 2, 5)
+        # 試聴ボタンのレイアウト追加
+        self.lineLayout.addWidget(self.testButton, 3, 1)
         # 画像表示に関するラジオボタンのグループ
         self.group_a = QButtonGroup()
         self.group_a.addButton(self.radio_a, 1)
@@ -65,7 +86,14 @@ class Setting(QWidget):
         self.group_b = QButtonGroup()
         self.group_b.addButton(self.radio_d, 4)
         self.group_b.addButton(self.radio_e, 5)
-
+        # 警告音の種類に関するラジオボタンのグループ
+        self.group_c = QButtonGroup()
+        self.group_c.addButton(self.radio_f, 6)
+        self.group_c.addButton(self.radio_g, 7)
+        self.group_c.addButton(self.radio_h, 8)
+        self.group_c.addButton(self.radio_i, 9)
+        self.group_c.addButton(self.radio_j, 10)
+        #レイアウト統合
         self.myVLayout.addLayout(self.lineLayout)
         self.myVLayout.addLayout(buttonLayout)
         self.setLayout(self.myVLayout)
@@ -73,29 +101,56 @@ class Setting(QWidget):
     def reflect(self):
         global flag_graph
         global flag_sound
+        global frag_alarm
         #それぞれのラジオボタンをチェックしてフラグ保存
+        #画像フラグ
         if self.radio_a.isChecked():
             flag_graph = 1
         elif self.radio_b.isChecked():
             flag_graph = 2
         elif self.radio_c.isChecked():
             flag_graph = 3
-
+        #警告音の有無フラグ
         if self.radio_d.isChecked():
             flag_sound = 4
         elif self.radio_e.isChecked():
             flag_sound = 5
+        #警告音の種類のフラグ
+        if self.radio_f.isChecked():
+            flag_alarm = 6
+        elif self.radio_g.isChecked():
+            flag_alarm = 7
+        elif self.radio_h.isChecked():
+            flag_alarm = 8
+        elif self.radio_i.isChecked():
+            flag_alarm = 9
+        elif self.radio_j.isChecked():
+            flag_alarm = 10
+
         #警告音の設定を反映した時に音を再生
         if flag_sound == 4:
             select()
         #設定を関数を定義したファイルとして保存
-        save(flag_graph, flag_sound)
+            save(flag_graph, flag_sound, flag_alarm)
 
     def retranslateUi(self, NewWindow): #ウィンドウタイトルの変更を行う
         NewWindow.setObjectName("NewWindow")
         _translate = QtCore.QCoreApplication.translate
         NewWindow.setWindowTitle(_translate("Newwindow", "設定"))
         QtCore.QMetaObject.connectSlotsByName(NewWindow)
+
+    def test_sound(self):  # 警告音の試聴
+        if self.radio_f.isChecked():
+            sound_name = 6
+        elif self.radio_g.isChecked():
+            sound_name = 7
+        elif self.radio_h.isChecked():
+            sound_name = 8
+        elif self.radio_i.isChecked():
+            sound_name = 9
+        elif self.radio_j.isChecked():
+            sound_name = 10
+        alarm(sound_name)
 
 class MainMenu(QWidget):
     def __init__(self, sysarg, parent=None):
@@ -172,12 +227,13 @@ class MainMenu(QWidget):
         global result
         global wanted_pic
         global flag_sound
+        global flag_alarm
         pic = self.detector.exists()
         if pic[1]:
             result = 0
             wanted_pic = pic[0]
             if flag_sound == 4: #設定で警告音を鳴らす
-                alarm()
+                alarm(flag_alarm)
         self.text.setText(str(result))
 
 #設定画面を出力するための土台を作るクラス
@@ -189,7 +245,7 @@ class SetWindow(QDialog):
         #dialog.setup(self)
         dialog.setObjectName("Dialog")
         #ウィンドウの大きさ指定
-        dialog.resize(350, 150)
+        dialog.resize(500, 150)
         #ウィンドウタイトルを設定
         dialog.retranslateUi(self)
         #self.show()
@@ -198,10 +254,11 @@ class SetWindow(QDialog):
 def main():
     global flag_graph
     global flag_sound
+    global flag_alarm
     global result
     if dbg == 1:
         result = 0
-    flag_graph, flag_sound = set_data()
+    flag_graph, flag_sound, flag_alarm = set_data()
     main_window = MainMenu(sys.argv)
 
 if __name__ == '__main__':
