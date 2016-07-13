@@ -18,7 +18,7 @@ from osog.gui.not_found import no_G_show #G未検出時の出力
 from osog.detector.capture import GDetector
 global flag_graph #結果の画像の設定 1:無修正 2:モザイク 3:完全規制ステッカ
 global flag_sound #警告音の設定 4:警告音あり 5:無音
-global frag_alarm #警告音の種類のフラグ6-10
+global flag_alarm #警告音の種類のフラグ6-10
 global result #結果のフラグ　0:G検出、1:未検出
 global wanted_pic   #結果の画像
 # from data import get_data
@@ -101,7 +101,7 @@ class Setting(QWidget):
     def reflect(self):
         global flag_graph
         global flag_sound
-        global frag_alarm
+        global flag_alarm
         #それぞれのラジオボタンをチェックしてフラグ保存
         #画像フラグ
         if self.radio_a.isChecked():
@@ -140,6 +140,8 @@ class Setting(QWidget):
         QtCore.QMetaObject.connectSlotsByName(NewWindow)
 
     def test_sound(self):  # 警告音の試聴
+        global flag_alarm
+        sound_name = flag_alarm
         if self.radio_f.isChecked():
             sound_name = 6
         elif self.radio_g.isChecked():
