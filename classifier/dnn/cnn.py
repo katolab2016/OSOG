@@ -4,24 +4,24 @@ import math
 import sys
 import random
 from osog.classifier.tool.file import *
+import tensorflow.python.platform
 
-
-NUM_CLASSES = 4
+NUM_CLASSES = 6
 IMAGE_SIZE =32
 IMAGE_PIXELS = IMAGE_SIZE*IMAGE_SIZE*3
-layer1 = 10
-layer2 = 20
-layer3 = 100
+layer1 = 64
+layer2 = 128
+layer3 = 256
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_string('train', 'train.txt', 'File name of train data')
 flags.DEFINE_string('test', 'test.txt', 'File name of train data')
 flags.DEFINE_string('train_dir', '/tmp/data', 'Directory to put the training data.')
-flags.DEFINE_integer('max_steps', 10000, 'Number of steps to run trainer.')
-flags.DEFINE_integer('batch_size', 100, 'Batch size'
+flags.DEFINE_integer('max_steps', 2000, 'Number of steps to run trainer.')
+flags.DEFINE_integer('batch_size', 10, 'Batch size'
                      'Must divide evenly into the dataset sizes.')
-flags.DEFINE_float('learning_rate', 1e-5, 'Initial learning rate.')
+flags.DEFINE_float('learning_rate', 1e-6, 'Initial learning rate.')
 
 def inference(images_placeholder, keep_prob):
 
@@ -186,7 +186,7 @@ def create(name='unnamed', extensions=['png', 'jpg'], dataset_pathes=None):
                 sess.run(train_op, feed_dict={
                     images_placeholder:train_image[batch:batch+FLAGS.batch_size],
                     labels_placeholder:train_label[batch:batch+FLAGS.batch_size],
-                    keep_prob:0.3})
+                    keep_prob:0.5})
 
             # 1 step終わるたびに精度を計算する
             train_accuracy = 0
@@ -196,6 +196,13 @@ def create(name='unnamed', extensions=['png', 'jpg'], dataset_pathes=None):
                     images_placeholder: train_image[batch:batch+FLAGS.batch_size],
                     labels_placeholder: train_label[batch:batch+FLAGS.batch_size],
                     keep_prob: 1.0})
+                if i == 0 and step%10 == 0:
+                    summary_str = sess.run(summary_op, feed_dict={
+                        images_placeholder: train_image[batch:batch+FLAGS.batch_size],
+                        labels_placeholder: train_label[batch:batch+FLAGS.batch_size],
+                        keep_prob: 1.0})
+                    summary_writer.add_summary(summary_str, step)
+
             train_accuracy /= lens
 
             sys.stdout.write("\r")
@@ -204,17 +211,12 @@ def create(name='unnamed', extensions=['png', 'jpg'], dataset_pathes=None):
             print("step %d, training accuracy %g"%(step, train_accuracy))
 
             #training accuracy = 1で終了させる
-            if train_accuracy > 0.99:
+            if train_accuracy >= 2:
                 break
 
             # 1 step終わるたびにTensorBoardに表示する値を追加する
-            """
-            summary_str = sess.run(summary_op, feed_dict={
-                images_placeholder: train_image,
-                labels_placeholder: train_label,
-                keep_prob: 1.0})
-            summary_writer.add_summary(summary_str, step)
-            """
+
+
     # 訓練が終了したらテストデータに対する精度を表示
 
     test_accuracy = 0
