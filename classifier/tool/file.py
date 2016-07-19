@@ -17,7 +17,13 @@ def imsread_ext(dirpath='./', flags=1, size=(28,28), exts=None):
             namelist.extend(fnmatch.filter(filelist, '*.' + ext))
 
     for name in namelist:
-        imglist.append(cv2.resize(cv2.imread(dirpath + name, flags), size))
+        image =cv2.imread(dirpath + name, flags)
+        if flags == 1 and image is None:
+          print('%s is invalid format' % name )
+        elif len(image) == len(image[0]):
+            imglist.append(cv2.resize(image, size))
+        else:
+            print('サイズ不適合により無視: %s' % name)
 
     return imglist
 
