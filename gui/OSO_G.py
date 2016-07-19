@@ -52,7 +52,7 @@ class Setting(QWidget):
         self.radio_b = QRadioButton('モザイク加工')
         self. lineLayout.addWidget(self.radio_b, 0, 2)
         # ラジオボタンC 画像無し
-        self.radio_c = QRadioButton('画像無し')
+        self.radio_c = QRadioButton('完全規制')
         self.lineLayout.addWidget(self.radio_c, 0, 3)
         # ラジオボタンD 警告音アリ
         self.radio_d = QRadioButton('警告音あり')
