@@ -9,16 +9,16 @@ import tensorflow.python.platform
 NUM_CLASSES = 6
 IMAGE_SIZE =32
 IMAGE_PIXELS = IMAGE_SIZE*IMAGE_SIZE*3
-layer1 = 64
+layer1 = 32
 layer2 = 128
-layer3 = 256
+layer3 = 512
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_string('train', 'train.txt', 'File name of train data')
 flags.DEFINE_string('test', 'test.txt', 'File name of train data')
 flags.DEFINE_string('train_dir', '/tmp/data', 'Directory to put the training data.')
-flags.DEFINE_integer('max_steps', 2000, 'Number of steps to run trainer.')
+flags.DEFINE_integer('max_steps', 10000, 'Number of steps to run trainer.')
 flags.DEFINE_integer('batch_size', 10, 'Batch size'
                      'Must divide evenly into the dataset sizes.')
 flags.DEFINE_float('learning_rate', 1e-6, 'Initial learning rate.')
@@ -98,7 +98,8 @@ class CNN:
         self.sess = tf.InteractiveSession()
         self.saver = tf.train.Saver()
         self.sess.run(tf.initialize_all_variables())
-        self.saver.restore(self.sess, 'learned/' + 'dnn_name' + '.ckpt')
+        self.saver.restore(self.sess, os.path.join(os.path.dirname(__file__), 'learned/' + dnn_name + '.ckpt')
+        )
 
     def predict(self, image):
         data = image.flatten().astype(np.float32) / 255.0
@@ -211,7 +212,7 @@ def create(name='unnamed', extensions=['png', 'jpg'], dataset_pathes=None):
             print("step %d, training accuracy %g"%(step, train_accuracy))
 
             #training accuracy = 1で終了させる
-            if train_accuracy >= 2:
+            if train_accuracy >= 0.998:
                 break
 
             # 1 step終わるたびにTensorBoardに表示する値を追加する

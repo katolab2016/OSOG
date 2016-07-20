@@ -16,6 +16,6 @@ class Estimator:
             print('Error: unexpected estimator type %s' %estimator_type)
 
     def predict(self, image):
-
+        image = cv2.resize(image, (32,32))
         return self.estimator.predict(image)
 

@@ -1,5 +1,5 @@
 #規定外のフラグの値の時、デフォルト設定にする
-from data import get_data #前回設定の読み込み
+from osog.gui.data import get_data #前回設定の読み込み
 
 def set_data():
     flag_graph, flag_sound, flag_alarm = get_data()

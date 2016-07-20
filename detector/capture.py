@@ -33,12 +33,12 @@ def flame_sub(im1, im2, im3, th, blur):
 class GDetector:
 
     def __init__(self):
-        self.cam = cv2.VideoCapture(0)
+        self.cam = cv2.VideoCapture(1)
         self.im1 = cv2.cvtColor(self.cam.read()[1], cv2.COLOR_BGR2GRAY)
         self.im2 = cv2.cvtColor(self.cam.read()[1], cv2.COLOR_RGB2GRAY)
-        # self.estimator = Estimator(estimator_type='DNN', model_name='model6')
-        self.estimator = Estimator(estimator_type='SVM', model_name='4classx96')
-        self.predict = np.zeros(5).tolist()
+        self.estimator = Estimator(estimator_type='DNN', model_name='6class2')
+        self.predict = np.zeros(1).tolist()
+        self.number=0
 
     #Gがいるか?
     def exists(self):
@@ -58,7 +58,7 @@ class GDetector:
         # new_x = x - (int(new_w / 2 - w / 2))
         new_x = x - (new_w - w) // 2 if x > (new_w - w) // 2 else x
         new_y = y - (new_h - h) // 2 if y > (new_h - h) // 2 else y
-        cv2.rectangle(im4, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        # cv2.rectangle(im4, (x, y), (x + w, y + h), (0, 255, 0), 2)
         # cv2.rectangle(im4, (new_x, new_y), (new_x + new_w, new_y + new_h), (0, 255, 0), 2)
         dst = im4[new_y:new_y + new_h, new_x:new_x + new_w]
         #cv2.imwrite('dst.jpg', dst)
@@ -68,28 +68,34 @@ class GDetector:
         if len(dst) > 0:
             predicted_class = self.estimator.predict(dst)
         else:
-            predicted_class = 4
+            predicted_class = 6
         #識別機からもらうでー
+
+        self.im1 = self.im2
+        self.im2 = self.im3
+
+        if DEBUG:
+            if predicted_class == 0:
+                print('G(toy)')
+            elif predicted_class == 1:
+                print('G(real)')
+            elif predicted_class == 2:
+                print('カブトムシ')
+            elif predicted_class == 3:
+                print('コオロギ')
+            elif predicted_class == 4:
+                print('クワガタ')
+            elif predicted_class == 5:
+                print('手')
+
+        if predicted_class == 0 or predicted_class == 1:
+            exist = True
+        else:
+            exist = False
 
         if DEBUG:
             cv2.imshow("Input", im4)
             cv2.imshow("Motion Mask", area)
-
-        self.im1 = self.im2
-        self.im2 = self.im3
-        print(predicted_class)
-
-        if predicted_class == 0:
-            #exist = True
-            self.predict = self.predict[1:] + [1]
-        else:
-            #exist = False
-            self.predict = self.predict[1:] + [0]
-        if sum(self.predict) >= 4:
-            exist = True
-            print('>> G <<')
-        else:
-            exist = False
 
         return dst, exist
 

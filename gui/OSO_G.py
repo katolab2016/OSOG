@@ -10,6 +10,7 @@
 # -*- coding:utf-8 -*-
 
 import cv2
+import os
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui
 from osog.gui.save_data import save #設定の保存(get_data.pyの出力)
@@ -25,7 +26,8 @@ global wanted_pic   #結果の画像
 from osog.gui.set_data import set_data #前回設定の読み込み
 from osog.gui.test_mp3 import alarm, select #alarm:警告音　select:設定反映時の音出力
 import sys
-dbg = 1  # 1:debugモード, 0:nomal
+dbg = 0  # 1:debugモード, 0:nomal
+release = True
 
 
 class Setting(QWidget):
@@ -164,7 +166,7 @@ class MainMenu(QWidget):
         # 画像表示に関する部分
         self.imageLabel = QLabel()
         image = QtGui.QImage()
-        image.load("Screen Shot 2016-05-10 at 2.28.02 PM.png")
+        image.load(os.path.join(os.path.dirname(__file__), 'image/logo.png'))
         pixmap = QtGui.QPixmap()
         pixmap.convertFromImage(image)
         self.imageLabel.setPixmap(pixmap)
@@ -181,13 +183,15 @@ class MainMenu(QWidget):
         timer = QtCore.QTimer(self)
         timer.timeout.connect(self.update_predict)
         timer.start(1)
-        self.text = QLineEdit()
-        self.text.setReadOnly(True)
+        if not release:
+            self.text = QLineEdit()
+            self.text.setReadOnly(True)
+            resultVLayout.addWidget(self.text)
 
         #レイアウト
         resultVLayout.addWidget(self.resultBtn)
         resultVLayout.addWidget(self.resetBtn)
-        resultVLayout.addWidget(self.text)
+
 
         HLayout.addLayout(resultVLayout)
         HLayout.addWidget(self.settingBtn)
@@ -231,12 +235,13 @@ class MainMenu(QWidget):
         global flag_sound
         global flag_alarm
         pic = self.detector.exists()
-        if pic[1]:
+        if pic[1] and result == 1:
             result = 0
             wanted_pic = pic[0]
             if flag_sound == 4: #設定で警告音を鳴らす
                 alarm(flag_alarm)
-        self.text.setText(str(result))
+        if not release:
+            self.text.setText(str(result))
 
 #設定画面を出力するための土台を作るクラス
 class SetWindow(QDialog):
@@ -260,6 +265,8 @@ def main():
     global result
     if dbg == 1:
         result = 0
+    if release:
+        result = 1
     flag_graph, flag_sound, flag_alarm = set_data()
     main_window = MainMenu(sys.argv)
 

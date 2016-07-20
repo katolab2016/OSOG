@@ -1,9 +1,8 @@
 import cv2
+import os
 #画像を読み込むのはデフォルトでサンプル画像
 
-def mosaic(flag_graph = 2, img_src = cv2.imread("IMG_20160522_194947.JPG", 1)):
-
-
+def mosaic(flag_graph = 2, img_src = cv2.imread(os.path.join(os.path.dirname(__file__), 'image/IMG_20160522_194947.JPG'), 1)):
 
     # 元の画像のサイズを取得
     size = img_src.shape[:2][::-1]
@@ -23,7 +22,7 @@ def mosaic(flag_graph = 2, img_src = cv2.imread("IMG_20160522_194947.JPG", 1)):
         cv2.imshow("Mosaic_G", img_dst)
     else :
         #新たに規制ステッカを読み込んで表示
-        img_irst = cv2.imread("G_st.JPG", 1)
+        img_irst = cv2.imread(os.path.join(os.path.dirname(__file__), 'image/G_st.JPG'), 1)
         cv2.imshow("Image_G", img_irst)
 
     cv2.waitKey(0)
