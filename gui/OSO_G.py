@@ -26,6 +26,7 @@ global wanted_pic   #結果の画像
 from osog.gui.set_data import set_data #前回設定の読み込み
 from osog.gui.test_mp3 import alarm, select #alarm:警告音　select:設定反映時の音出力
 import sys
+import numpy as np
 dbg = 0  # 1:debugモード, 0:nomal
 release = True
 
@@ -177,6 +178,9 @@ class MainMenu(QWidget):
         self.settingBtn.clicked.connect(self.settingmenu)
         self.resetBtn = QPushButton("&結果をリセット")
         self.resetBtn.clicked.connect(self.reset)
+        self.cameraEnable = False
+        self.cameraBtn = QPushButton('カメラ表示')
+        self.cameraBtn.clicked.connect(self.toggle_camera)
 
         #検出器まわり
         self.detector = GDetector()
@@ -189,6 +193,7 @@ class MainMenu(QWidget):
             resultVLayout.addWidget(self.text)
 
         #レイアウト
+        resultVLayout.addWidget(self.cameraBtn)
         resultVLayout.addWidget(self.resultBtn)
         resultVLayout.addWidget(self.resetBtn)
 
@@ -234,7 +239,7 @@ class MainMenu(QWidget):
         global wanted_pic
         global flag_sound
         global flag_alarm
-        pic = self.detector.exists()
+        pic = self.detector.exists(self.cameraEnable)
         if pic[1] and result == 1:
             result = 0
             wanted_pic = pic[0]
@@ -242,6 +247,14 @@ class MainMenu(QWidget):
                 alarm(flag_alarm)
         if not release:
             self.text.setText(str(result))
+
+    def toggle_camera(self):
+        if self.cameraEnable:
+            self.cameraEnable = False
+            self.cameraBtn.setText('カメラ表示')
+        else:
+            self.cameraEnable = True
+            self.cameraBtn.setText('カメラ非表示')
 
 #設定画面を出力するための土台を作るクラス
 class SetWindow(QDialog):

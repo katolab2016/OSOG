@@ -104,14 +104,13 @@ class CNN:
     def predict(self, image):
         data = image.flatten().astype(np.float32) / 255.0
         image = np.asarray([data])
-        return np.argmax(
-            self.logits.eval(
-                feed_dict={
-                    self.images_placeholder: image,
-                    self.keep_prob: 1.0
-                }
-            )[0]
-        )
+        pds = self.logits.eval(
+            feed_dict={
+                self.images_placeholder: image,
+                self.keep_prob: 1.0
+            }
+        )[0]
+        return np.argmax(pds), pds.max()
 
 def create(name='unnamed', extensions=['png', 'jpg'], dataset_pathes=None):
 

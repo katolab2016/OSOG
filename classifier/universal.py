@@ -17,5 +17,9 @@ class Estimator:
 
     def predict(self, image):
         image = cv2.resize(image, (32,32))
-        return self.estimator.predict(image)
+
+        if self.estimator_type == 'SVM':
+            return self.estimator.predict(image),1
+        elif self.estimator_type == 'DNN':
+            return self.estimator.predict(image)
 

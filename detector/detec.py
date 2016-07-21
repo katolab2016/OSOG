@@ -27,7 +27,6 @@ def flame_sub(im1, im2, im3, th, blur):
     return im_mask
 
 
-
 if __name__ == '__main__':
 
     cam = cv2.VideoCapture(0)

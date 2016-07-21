@@ -7,7 +7,7 @@ from osog.classifier.universal import Estimator
 from osog.detector.color_filter import hsv
 from matplotlib import pyplot as plt
 
-DEBUG = True
+DEBUG = False
 
 def flame_sub(im1, im2, im3, th, blur):
 
@@ -41,7 +41,7 @@ class GDetector:
         self.number=0
 
     #Gがいるか?
-    def exists(self):
+    def exists(self, camera_enable):
         #フレーム間差分計算
         im4 = self.cam.read()[1]
         self.im3 = cv2.cvtColor(im4, cv2.COLOR_RGB2GRAY)
@@ -66,7 +66,7 @@ class GDetector:
         #識別機にわたすとこやでー
         #仮の処理
         if len(dst) > 0:
-            predicted_class = self.estimator.predict(dst)
+            predicted_class, predicted_prob = self.estimator.predict(dst)
         else:
             predicted_class = 6
         #識別機からもらうでー
@@ -74,7 +74,7 @@ class GDetector:
         self.im1 = self.im2
         self.im2 = self.im3
 
-        if DEBUG:
+        if DEBUG and True:
             if predicted_class == 0:
                 print('G(toy)')
             elif predicted_class == 1:
@@ -93,8 +93,11 @@ class GDetector:
         else:
             exist = False
 
+        if camera_enable:
+            cv2.imshow('Input', im4)
+        else:
+            cv2.destroyWindow('Input')
         if DEBUG:
-            cv2.imshow("Input", im4)
             cv2.imshow("Motion Mask", area)
 
         return dst, exist
