@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import random
 import os
+import sys
 from osog.classifier.universal import Estimator
 from osog.detector.color_filter import hsv
 from matplotlib import pyplot as plt
@@ -74,24 +75,32 @@ class GDetector:
         self.im1 = self.im2
         self.im2 = self.im3
 
-        if DEBUG and True:
+        if False and predicted_class < 6 and predicted_prob >= 0:
             if predicted_class == 0:
-                print('G(toy)')
+                print('G(toy)\t%s%%' %predicted_prob)
             elif predicted_class == 1:
-                print('G(real)')
+                print('G(real)\t%s%%' %predicted_prob)
             elif predicted_class == 2:
-                print('カブトムシ')
+                print('カブトムシ\t%s%%' %predicted_prob)
             elif predicted_class == 3:
-                print('コオロギ')
+                print('コオロギ\t%s%%' %predicted_prob)
             elif predicted_class == 4:
-                print('クワガタ')
+                print('クワガタ\t%s%%' %predicted_prob)
             elif predicted_class == 5:
-                print('手')
+                print('手\t\t%s%%'%predicted_prob)
 
         if predicted_class == 0 or predicted_class == 1:
+            self.number+=1
+        else:
+            self.number=0
+        if self.number >= 6:
             exist = True
+            sys.stdout.flush()
+            sys.stdout.write('\rGがいる')
         else:
             exist = False
+            sys.stdout.flush()
+            sys.stdout.write('\rGはいない')
 
         if camera_enable:
             cv2.imshow('Input', im4)
