@@ -265,7 +265,7 @@ class SetWindow(QDialog):
         #dialog.setup(self)
         dialog.setObjectName("Dialog")
         #ウィンドウの大きさ指定
-        dialog.resize(500, 150)
+        dialog.resize(600, 150)
         #ウィンドウタイトルを設定
         dialog.retranslateUi(self)
         #self.show()
